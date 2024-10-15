@@ -1,0 +1,49 @@
+---
+- name: Check for updates, update any packages, and if required, shutdown the VMs and server
+  # Looks for hosts tagged with [proxmox]
+  hosts: proxmox
+  tasks:
+    # This task is equivalent to 'apt update', thus fetches new packages available from our respositories 
+    - name: Updating package lists on {{ inventory_hostname }}
+      apt:
+        update_cache: yes
+        
+    # This task is equivalent to 'apt dist-upgrade', thus downloads and installs the new package versions
+    - name: Running 'apt dist-upgrade' on {{ inventory_hostname }}
+      apt:
+        upgrade: dist
+
+    # This uses the 'stat' module to see if /var/run/reboot-required exists. If it does, it'll register a variable called reboot_required
+    - name: Checking if a reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    # If we registered reboot_required, it will gather all running VM IDs. For awk, column 1 is the ID, 2 is the name, and 3 is the state
+    # This will loop until all VMs have received a shutdown request
+    - name: If a reboot is required, starting graceful shutdown of down VMs on {{ inventory_hostname }}
+      shell: |
+        for vm in $(qm list | wk '$3 == "running" {print $1,$2}'); do
+          echo "Stopping VM ID: $vm"
+          qm shutdown $vm
+        done
+      when: reboot_required.stat.exists == true
+
+    # ProxMox also sends a shutdown request on reboot, but to be careful, we see if any VMs are in a running state
+    # If any VMs are running, this will loop, checking every 2 seconds, until all VMs are shutdown. If this loops, cancel the playbook and fix it.
+    # This will also register vms_shutdown once complete
+    - name: Waiting for all VMs to be shutdown before proceeding with host reboot
+      shell: |
+        for vm in $(qm list | awk '$3 == "running" {print $1 }'); do
+          echo "Waiting for $vm to shutdown. Checking again in 2 seconds.."
+          sleep 2
+        done
+      register: vms_shutdown
+      when: reboot_required.stat.exists == true
+      
+    # If we registered both the host shutdown and VMs shutdown, we will then reboot the host
+    - name: Rebooted required and all VMs powered off, rebooting {{ inventory_hostname }} 
+      reboot:
+      when:
+        - reboot_required.stat.exists == true
+        - vms_shutdown.stat.exists == true

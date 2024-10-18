@@ -79,13 +79,11 @@
     # I feel like utilizing these commands is easier than parsing files
     - name: Add network comments on {{ iface_1 }}
       shell: pvesh set /nodes/{{ node }}/network/{{ iface_1 }} --type eth --comments "SPAN Interface"
-      register: ifreload
-
+      
     # If we made a network change, we need to run 'ifreload' to apply these changes
     - name: Reload network interfaces
       shell: ifreload -a
-      when: ifreload.stat.exists = true
-
+      
     # This will configure a single NFS repository rather than doing it via the GUI
     # NOTE: /etc/pve/storage.cfg is copied across ALL nodes. You'll need to modify the payload to restrict 
     # it to certain nodes if you need that

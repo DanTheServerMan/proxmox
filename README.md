@@ -11,7 +11,7 @@ Any users are responsible for modifying the variables in the script as they're u
 
 **update-single-host.yaml:**
 
-This Ansible playbook modifies the configuration to only use the free repositories for ProxMox. Them it fetches and applies any updates. If a reboot is required, it will reboot the host. The kernel version is printed before and after the update.
+This Ansible playbook modifies the configuration to only use the free repositories for ProxMox. It then fetches and applies any updates. If a reboot is required, it will reboot the host. The kernel version is printed before and after the update.
 
 **files/**
 

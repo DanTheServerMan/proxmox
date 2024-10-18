@@ -14,4 +14,5 @@ Any users are responsible for modifying the variables in the script as they're u
 This Ansible playbook modifies the configuration to only use the free repositories for ProxMox. Them it fetches and applies any updates. If a reboot is required, it will reboot the host. The kernel version is printed before and after the update.
 
 **files/**
+
 This directory is used for source files that a Ansible script may need to utilize

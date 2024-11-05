@@ -71,7 +71,7 @@
       notify:
         - restart_chronyd
 
-    # You could set DNS via /etc/resolf.conf if you'd like. In this instance, I wanted to try the command line interface instead.
+    # You could set DNS via /etc/resolv.conf if you'd like. In this instance, I wanted to try the command line interface instead.
     - name: Configure DNS
       shell: pvesh set /nodes/{{ node }}/dns --search {{ search_domain }} --dns1 {{ dns_server1 }} --dns2 {{ dns_server2 }}
 

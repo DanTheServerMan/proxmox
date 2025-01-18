@@ -10,7 +10,7 @@ provider "proxmox" {
 # Using our provider, we're defining a new resources called "vm"
 # The name, cores, memory, etc. have all been converted to a variable in vars.tf
 resource "proxmox_vm_qemu" "vm" {
- name        = "${var.vm_name}-${count.index + 1}"
+ name        = "${var.vm_name}-${count.index + 1}" # Example: vm_name is 'test', count is 3. This will name VMs "test-1, test-2, test-3"
  target_node = var.pve_hostname
  vmid        = var.vm_id + count.index
  count       = var.vm_count
@@ -19,9 +19,7 @@ resource "proxmox_vm_qemu" "vm" {
  onboot      = var.vm_onboot
  scsihw      = var.vm_scsihw
  desc        = var.vm_desc
- # This is a full (not linked) clone operation. It is REQUIRED for use w/ cloudinit
- # The var is the name of the already-templated VM in ProxMox
- clone       = var.vm_template
+ clone       = var.vm_template # This is a full (not linked) clone operation. It is REQUIRED for use w/ cloudinit
 
 
  # This defines a disk, its location, size (In GiB), format (ex. qcow2, raw, etc.), type, and slot (ex. scsi0)

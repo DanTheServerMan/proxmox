@@ -1,0 +1,63 @@
+# Validated 1/18/25
+- name: Configure repositories, check for updates, update any packages, and if required, reboot the VMs and server
+  hosts: proxmox
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: Removing the license-only repository on {{ inventory_hostname }}
+      apt_repository:
+        repo: '{{ pve_enterprise_repo }}'
+        state: absent
+        update_cache: false
+
+    - name: Removing the license-only Ceph repository on {{ inventory_hostname }}
+      apt_repository:
+        repo: '{{ ceph_enterprise_repo }}'
+        state: absent
+        update_cache: false
+
+    - name: Adding the ProxMox free repository
+      ansible.builtin.apt_repository:
+        repo: '{{ pve_nosub_repo }}'
+        state: present
+        update_cache: false
+
+    - name: Adding the Ceph free repository
+      ansible.builtin.apt_repository:
+        repo: '{{ ceph_nosub_repo }}'
+        state: present
+        update_cache: false
+
+    - name: Updating package lists on {{ inventory_hostname }}
+      apt:
+        update_cache: yes
+
+    - name: Running 'apt dist-upgrade' on {{ inventory_hostname }}
+      apt:
+        upgrade: dist
+
+    - name: Checking if a reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Host needs a reboot to apply updates
+      block:
+        - shell: uname -r
+          register: pre_kernel
+
+        - name: Printing the kernel version pre-boot
+          debug:
+            var: pre_kernel.stdout
+
+        - name: Rebooted required and all VMs powered off, rebooting {{ inventory_hostname }}
+          reboot:
+
+        - shell: uname -r
+          register: post_kernel
+
+        - name: Printing the kernel version post reboot
+          debug:
+            var: post_kernel.stdout
+
+      when: reboot_required.stat.exists == true

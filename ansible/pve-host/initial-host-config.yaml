@@ -1,0 +1,110 @@
+# Validated 1/18/25
+- name: Performing initial ProxMox host configuration
+  hosts: proxmox
+  vars_files:
+    - vars.yaml
+  handlers:
+    - name: restart_sshd
+      service:
+        name: sshd
+        state: restarted
+    - name: restart_chronyd
+      service:
+        name: chronyd
+        state: restarted
+  tasks:
+    - name: Installing packages on {{ inventory_hostname }}
+      apt:
+        pkg:
+          - vim
+          - nload
+          - fio
+          - net-tools
+          - openvswitch-switch
+
+    - name: Disabling the PVE banner service
+      service:
+        name: pvebanner
+        state: stopped
+        enabled: false
+
+    - name: Delete the current login banner file
+      file:
+        path: /etc/motd
+        state: absent
+
+    - name: Recreate the login banner file
+      file:
+        path: /etc/motd
+        state: touch
+
+    - name: Setting the login banner in /etc/motd 
+      lineinfile:
+        path: /etc/motd
+        line:  "{{ motd }}"
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - restart_sshd
+
+    - name: Removing 10-uname to prevent kernel logging info from appearing in the MOTD
+      file:
+        path: /etc/update-motd.d/10-uname
+        state: absent
+
+    - name: Set timezone to UTC
+      timezone:
+        name: UTC
+
+    - name: Remove default NTP servers
+      lineinfile:
+        path: /etc/chrony/chrony.conf
+        regex:  ".pool*"
+        state: absent
+
+    - name: Add in NTP servers
+      lineinfile:
+        path: /etc/chrony/chrony.conf
+        line:  "{{ ntp_server }}"
+        state: present
+      notify:
+        - restart_chronyd
+
+    - name: Create a backup of the network configuration before making changes
+      shell: cp /etc/network/interfaces /etc/network/interfaces-ansible.bk
+      
+    - name: Configure DNS
+      shell: pvesh set /nodes/{{ node }}/dns --search {{ search_domain }} --dns1 {{ dns_server1 }} --dns2 {{ dns_server2 }}
+
+    - name: Add network comments on {{ iface_1 }}
+      shell: pvesh set /nodes/{{ node }}/network/{{ iface_1 }} --type eth --comments "{{ iface_1_desc }}"
+
+    - name: Add network comments on {{ iface_2 }}
+      shell: pvesh set /nodes/{{ node }}/network/{{ iface_2 }} --type eth --comments "{{ iface_2_desc }}"
+
+    - name: Add network comments on {{ bridge_1 }}
+      shell: pvesh set /nodes/{{ node }}/network/{{ bridge_1 }} --type eth --comments "{{ bridge_1_desc }}"
+
+    - name: Add network comments on {{ bridge_2 }}
+      shell: pvesh set /nodes/{{ node }}/network/{{ bridge_2 }} --type eth --comments "{{ bridge_2_desc }}"
+
+    - name: Reloading the network interfaces 
+      shell: ifreload -a
+
+    - name: Adding NFS storage {{ nfs_storage }} on {{ inventory_hostname }}
+      blockinfile:
+        path: /etc/pve/storage.cfg
+        block: |
+          nfs: {{ nfs_storage }}
+                   export {{ nfs_path }}
+                   path /mnt/pve/{{ nfs_storage }}
+                   server {{ nfs_ip }}
+                   content {{ nfs_content }}
+                   prune-backups keep-all=1
+
+    - name: Rename the local storage to {{ node }}
+      replace:
+        path: /etc/pve/storage.cfg
+        regexp: 'local'
+        replace: "{{ node }}"

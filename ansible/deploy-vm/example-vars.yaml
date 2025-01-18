@@ -1,0 +1,38 @@
+# These are variables pulled from the requirements
+# Path: /nodes/{node}/qemu , POST method: https://pve.proxmox.com/pve-docs/api-viewer/index.html#/nodes/{node}/qemu)
+# ------------------------------------------
+# Configured node/hostname name in ProxMox
+hostname: caerus-pmx
+# VMID assigned to the VM
+vmid: 100
+# Number of CPUs assigned to the VM
+cores: 4
+# Amount of the RAM, in GB, assigned to the VM:
+memory: 4096
+# OS Type - options are viewable in the API doc, node qemu section, POST method
+ostype: l26
+# Boolean value to decide if the VM should be enabled on boot of the host, 'true' boots, 'false' doesn't
+bootonhoststartup: 1
+# Defines the SCSIHW type, this value is fine for most use cases
+scsihw: virtio-scsi-single
+# Defines the ID/name of the disk
+diskID: scsi0
+# Defines the datastore name of where the VM should be place
+disklocation: nfs-datastore
+# Defines the size of the disk, in GiB
+disksize: 50
+# Defines the network adapter ID/name
+netID: net0
+# Defines the network adapter type
+nettype: virtio
+# Specifies which bridge the adapter should connect to
+netbridge: vmbr0
+# Defines the datastore where the ISO is located
+isodatastore: iso-datastore
+# Name of the ISO
+iso: ubuntu.iso
+# Description of the VM
+vmdesc: Test VM description
+# Name of the VM
+vmname: ansible-test-vm
+

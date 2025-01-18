@@ -1,0 +1,48 @@
+# Validated 1/18/25
+## initial-host-config.yaml playbook variables
+# Configured node name in ProxMox
+node: proxmox-host
+# NTP server 
+ntp_server: server 0.us.pool.ntp.org iburst
+# DNS search domain
+search_domain: lab.local
+# DNS server IPs
+dns_server1: 192.168.1.1
+dns_server2: 192.168.1.2
+# Two physical interfaces, script can be modified to have more or less
+iface_1: enp3s0
+iface_2: enp2s0
+# Descriptions for each interfaces, visible in the GUI
+iface_1_desc: WAN Physical Interface
+iface_2_desc: LAN Physical Interface
+# Two bridges, tied to each physical iface
+bridge_1: vmbr0
+bridge_2: vmbr1
+# Descriptions for each bridge
+bridge_1_desc: LAN Bridge Interface
+bridge_2_desc: WAN Bridge Interface
+# NFS datastore name visible in ProxMox
+nfs_storage: test-nfs-datastore
+# NFS export path on the NFS server
+nfs_path: /volume1/NFS-Datastore
+# NFS server IP
+nfs_ip: 192.168.1.3
+# Content available on the datastore, options are under the 'content' section: https://pve.proxmox.com/wiki/Storage
+nfs_content: images,rootdir
+# This is the login MOTD banner that will be configured
+motd: |
+    -----------------------------------------------------------------
+    Warning: This system is restricted to me only.
+
+    Unauthorized access or use is a violation of my policy and the
+    law. This system may be monitored for administrative and security
+    reasons. By proceeding, you acknowledge that (1) you have read and
+    understand this notice and (2) you consent to the system monitoring.
+    -----------------------------------------------------------------
+
+## update-single-host.yaml playbook variables
+# It is likely that these will change frequently, you should check https://pve.proxmox.com/wiki/Package_Repositories to makke sure it is still up-to-date
+pve_enterprise_repo: deb https://enterprise.proxmox.com/debian/ceph-squid bookworm enterprise
+ceph_enterprise_repo: deb https://enterprise.proxmox.com/debian/pve bookworm pve-enterprise
+pve_nosub_repo: deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription
+ceph_nosub_repo: deb http://download.proxmox.com/debian/ceph-quincy bookworm no-subscription

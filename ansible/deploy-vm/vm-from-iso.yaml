@@ -1,0 +1,16 @@
+# Validated 1/18/25
+- name: Deploying a virtual machine
+  hosts: proxmox
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: Deploying a new VM named {{ vmname }} on {{ inventory_hostname }}
+      shell: pvesh create /nodes/{{ hostname }}/qemu --vmid {{ vmid }} --cores {{ cores }} --memory {{ memory }} --ostype {{ ostype }} --onboot {{ bootonhoststartup }} --scsihw {{ scsihw }} --{{ diskID }} {{ disklocation }}:{{ disksize }} --{{ netID }} model={{ nettype }},bridge={{ netbridge }} --cdrom {{ isodatastore }}:iso/{{ iso }} --description "{{ vmdesc }}" --name "{{ vmname }}" --start 1
+
+    - name: Gathering config for newly created {{ vmname }} on {{ inventory_hostname }}
+      shell: qm config {{ vmid }}
+      register: qmconfig
+
+    - name: Printing information of the newly created container for review
+      debug: 
+        var: qmconfig.stdout_lines

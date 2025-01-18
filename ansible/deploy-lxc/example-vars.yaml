@@ -1,0 +1,35 @@
+# Validated 1/18/25
+# These are variables pulled from the requirements
+# Path: /nodes/{node}/lxc , POST method: https://pve.proxmox.com/pve-docs/api-viewer/#/nodes/{node}/lxc
+# ------------------------------------------
+# Configured node/hostname name in ProxMox
+hostname: proxmox-host
+# VMID assigned to the container. Yes, it says VMID, that is expected
+vmid: 602
+# Number of CPUs assigned to the container
+cpus: 2
+# Amount of the RAM, in GB, assigned to the container
+memory: 2048
+# OS template - you can pull this on the LXC datastore -> CT Templates -> Templates
+ostemplate: ubuntu-24.10-standard_24.10-1_amd64.tar.zst
+# Location of where the LXC template is stored
+ostempdatastore: test-nfs-datastore
+# Boolean value to decide if the VM should be enabled on boot of the host, 'true' boots, 'false' doesn't
+bootonhoststartup: 1
+# Defines the datastore name of where the VM should be place
+disklocation: test-nfs-datastore
+# Defines the size of the disk, in GiB
+disksize: 50
+# Defines the network adapter ID/name
+netID: net0
+# Network interface name
+netname: eth0
+# Specifies which bridge the adapter should connect to
+netbridge: vmbr0
+# Set the IP mode for the network interface
+ip: dhcp
+# Description of the container
+lxcdesc: Test description
+# Name of the container
+lxcname: ansible-lxc-test
+

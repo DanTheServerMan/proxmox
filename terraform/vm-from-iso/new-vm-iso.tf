@@ -1,0 +1,48 @@
+# This defines our provider and necessary information to utilize the provider
+# Documentation can be found here: https://registry.terraform.io/providers/Telmate/proxmox/latest/docs/guides/developer
+provider "proxmox" {
+  pm_api_url = var.pve_api_url
+  pm_api_token_id = var.pve_api_token_id
+  pm_api_token_secret = var.pve_api_token_secret 
+  pm_tls_insecure = true
+}
+# Using our provider, we're defining a new resources called "vm"
+# The name, cores, memory, etc. have all been converted to a variable in vars.tf
+resource "proxmox_vm_qemu" "vm" {
+ name        = "${var.vm_name}-${count.index + 1}"
+ target_node = var.pve_hostname
+ vmid        = var.vm_id + count.index
+ count       = var.vm_count
+ cores       = var.vm_cores
+ memory      = var.vm_memory
+ onboot      = var.vm_onboot
+ scsihw      = var.vm_scsihw
+ desc        = var.vm_desc
+
+ # This defines a disk, its location, size (In GiB), format (ex. qcow2, raw, etc.), type, and slot (ex. scsi0)
+ disk {
+   storage = var.vm_disk1_datastore
+   size = var.vm_disk1_size
+   format = var.vm_disk1_format
+   type = "disk"
+   slot = var.vm_disk1_slot
+ }
+
+ # A second disk, defined with the same structure. However, this time its a cdrom type. We will use this to mount our OS install ISO 
+ disk {
+   iso = var.vm_iso_fullpath
+   type = "cdrom"
+   slot = "ide2"
+ }
+
+ # This defines the NIC of our VM, its emulation type, which PVE host bridge it is assigned to, and toggles the firewall
+ network {
+   model = var.vm_nic1_model
+   bridge = var.vm_nic1_bridge
+   firewall = var.vm_nic1_firewalls
+  }
+
+  serial {
+   id = 1
+ }
+}

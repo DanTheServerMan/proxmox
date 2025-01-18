@@ -1,0 +1,19 @@
+# Validated 1/18/25
+- name: Deploying a LXC container
+  hosts: proxmox
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: Download the specified container image {{ ostemplate }} on {{ ostempdatastore }}
+      shell: pveam download {{ ostempdatastore }} {{ ostemplate }}
+
+    - name: Deploying a new LXC container named {{ lxcname }} on {{ inventory_hostname }}
+      shell: pvesh create /nodes/{{ hostname }}/lxc --vmid {{ vmid }} --cores {{ cpus }} --cmode shell --memory {{ memory }} --ostemplate {{ ostempdatastore }}:vztmpl/{{ ostemplate }} --onboot {{ bootonhoststartup }} --rootfs {{ disklocation }}:{{ disksize }} --{{ netID }} name={{ netname }},bridge={{ netbridge }},ip={{ ip }}  --description "{{ lxcdesc }}" --hostname {{ lxcname }} --start 1 
+
+    - name: Gathering config for newly created {{ lxcname }} on {{ inventory_hostname }}
+      shell: pct config {{ vmid }}
+      register: pctconfig
+
+    - name: Printing information of the newly created container for review
+      debug: 
+        var: pctconfig.stdout_lines

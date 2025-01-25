@@ -18,3 +18,4 @@ vm_disk1_slot       = "scsi0"  # This is the storage controller
 vm_nic1_model       = "virtio" # The NIC will use virtio instead of other emulations like vmxnet3
 vm_nic1_bridge      = "vmbr0" # This is the bridge the VM NIC will connect to
 vm_nic1_firewalls   = "false" # This disables the firewall on the NIC
+vm_template         = "" # Name of the VM template

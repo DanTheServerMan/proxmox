@@ -20,6 +20,13 @@ resource "proxmox_vm_qemu" "vm" {
  scsihw      = var.vm_scsihw
  desc        = var.vm_desc
  clone       = var.vm_template # This is a full (not linked) clone operation. It is REQUIRED for use w/ cloudinit
+ ipconfig0   = var.vm_ipconfig[count.index]
+ force_create = true # This will cause Terraform to regen the cloudinit image on the VM after its cloned, which in my testing was necessary
+ 
+ # User information
+ ciuser      = var.ciuser
+ cipassword  = var.cipassword
+ sshkeys = var.sshkeys
 
 
  # This defines a disk, its location, size (In GiB), format (ex. qcow2, raw, etc.), type, and slot (ex. scsi0)
@@ -31,6 +38,13 @@ resource "proxmox_vm_qemu" "vm" {
    slot = var.vm_disk1_slot
  }
 
+disk {
+  storage = var.vm_disk1_datastore
+  type    = "cloudinit"  
+  slot = "ide0"
+}
+
+
  # This defines the NIC of our VM, its emulation type, which PVE host bridge it is assigned to, and toggles the firewall
  network {
    model = var.vm_nic1_model
@@ -39,6 +53,6 @@ resource "proxmox_vm_qemu" "vm" {
   }
 
   serial {
-   id = 1
+   id = 0
  }
 }

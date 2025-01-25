@@ -19,3 +19,8 @@ vm_nic1_model       = "virtio" # The NIC will use virtio instead of other emulat
 vm_nic1_bridge      = "vmbr0" # This is the bridge the VM NIC will connect to
 vm_nic1_firewalls   = "false" # This disables the firewall on the NIC
 vm_template         = "" # Name of the VM template
+vm_ipconfig         = ["ip=192.168.1.200/24,gw=192.168.1.1", "ip=192.168.1.201/24,gw=192.168.1.1", "ip=192.168.1.202/24,gw=192.168.1.1"]
+ciuser              = "dantheserverman"
+# cipassword = Define this with a env variable, don't put it in a file!
+# Example : 'export TF_VAR_cipassword=' will allow terraform to auto locate it
+sshkeys             = ""

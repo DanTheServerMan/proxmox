@@ -77,3 +77,19 @@ variable "vm_nic1_firewalls" {
 variable "vm_template" {
   type    = string
 }
+
+variable "vm_ipconfig" {
+  type    = list(string)
+}
+
+variable "ciuser" {
+  type    = string
+}
+
+variable "cipassword" {
+  type    = string
+}
+
+variable "sshkeys" {
+  type    = string
+}
